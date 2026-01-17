@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { staffApi, konfiguasiApi } from '../../lib/api';
+import { staffApi, konfiguasiApi, getImageUrl } from '../../lib/api';
 import {
     Building, School, BookOpen, Monitor, Palette, Music, Trophy, Dumbbell,
     FlaskConical, Microscope, Calculator, PenTool, Theater, Target, Car, Bus,
@@ -117,7 +117,7 @@ export default function Profil() {
                                 <div key={item.id_staff} className="text-center">
                                     <div className="w-24 h-24 mx-auto rounded-full overflow-hidden bg-gray-200 mb-3">
                                         {item.gambar ? (
-                                            <img src={`/api/upload/${item.gambar}`} alt={item.nama_staff} className="w-full h-full object-cover" />
+                                            <img src={getImageUrl(item.gambar)} alt={item.nama_staff} className="w-full h-full object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-3xl text-gray-400">
                                                 {item.nama_staff?.charAt(0)}

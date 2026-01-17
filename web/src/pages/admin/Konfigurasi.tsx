@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Save, Upload } from 'lucide-react';
-import { konfiguasiApi, uploadApi } from '../../lib/api';
+import { konfiguasiApi, uploadApi, getImageUrl } from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface Konfigurasi {
@@ -518,7 +518,7 @@ export default function AdminKonfigurasi() {
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                                 {form.logo ? (
                                     <img
-                                        src={form.logo.startsWith('http') || form.logo.startsWith('/') ? form.logo : `/api/upload/${form.logo}`}
+                                        src={getImageUrl(form.logo)}
                                         alt="Logo"
                                         className="h-16 mx-auto mb-2 object-contain"
                                     />
@@ -538,7 +538,7 @@ export default function AdminKonfigurasi() {
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                                 {form.icon ? (
                                     <img
-                                        src={form.icon.startsWith('http') || form.icon.startsWith('/') ? form.icon : `/api/upload/${form.icon}`}
+                                        src={getImageUrl(form.icon)}
                                         alt="Icon"
                                         className="h-16 mx-auto mb-2 object-contain"
                                     />
@@ -558,7 +558,7 @@ export default function AdminKonfigurasi() {
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                                 {form.favicon ? (
                                     <img
-                                        src={form.favicon.startsWith('http') || form.favicon.startsWith('/') ? form.favicon : `/api/upload/${form.favicon}`}
+                                        src={getImageUrl(form.favicon)}
                                         alt="Favicon"
                                         className="h-16 mx-auto mb-2 object-contain"
                                     />
@@ -644,7 +644,7 @@ export default function AdminKonfigurasi() {
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                                 {form.poster1 ? (
                                     <img
-                                        src={form.poster1.startsWith('http') || form.poster1.startsWith('/') ? form.poster1 : `/api/upload/${form.poster1}`}
+                                        src={getImageUrl(form.poster1)}
                                         alt="Poster 1"
                                         className="max-h-48 mx-auto mb-2 object-contain rounded-lg"
                                     />
@@ -664,7 +664,7 @@ export default function AdminKonfigurasi() {
                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                                 {form.poster2 ? (
                                     <img
-                                        src={form.poster2.startsWith('http') || form.poster2.startsWith('/') ? form.poster2 : `/api/upload/${form.poster2}`}
+                                        src={getImageUrl(form.poster2)}
                                         alt="Poster 2"
                                         className="max-h-48 mx-auto mb-2 object-contain rounded-lg"
                                     />

@@ -12,6 +12,7 @@ import Berita from './pages/public/Berita';
 import BeritaDetail from './pages/public/BeritaDetail';
 import Galeri from './pages/public/Galeri';
 import Profil from './pages/public/Profil';
+import HalamanDetail from './pages/public/HalamanDetail';
 import Kontak from './pages/public/Kontak';
 import Pendaftaran from './pages/public/Pendaftaran';
 import Signin from './pages/public/Signin';
@@ -31,6 +32,7 @@ import AdminSlider from './pages/admin/Slider';
 import AdminGelombang from './pages/admin/Gelombang';
 import AdminJenjangPendidikan from './pages/admin/JenjangPendidikan';
 import AdminProfile from './pages/admin/Profile';
+import AdminHalaman from './pages/admin/Halaman';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -52,6 +54,7 @@ function App() {
                 <Route path="/berita/:slug" element={<BeritaDetail />} />
                 <Route path="/galeri" element={<Galeri />} />
                 <Route path="/profil" element={<Profil />} />
+                <Route path="/halaman/:slug" element={<HalamanDetail />} />
                 <Route path="/kontak" element={<Kontak />} />
                 <Route path="/pendaftaran" element={<Pendaftaran />} />
                 <Route path="/signin" element={<Signin />} />
@@ -80,6 +83,7 @@ function App() {
                 <Route path="gelombang" element={<AdminGelombang />} />
                 <Route path="program" element={<AdminJenjangPendidikan />} />
                 <Route path="profile" element={<AdminProfile />} />
+                <Route path="halaman" element={<AdminHalaman />} />
             </Route>
 
             {/* 404 */}

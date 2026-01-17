@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Eye, ArrowLeft, Share2 } from 'lucide-react';
-import { beritaApi } from '../../lib/api';
+import { beritaApi, getImageUrl } from '../../lib/api';
 
 interface BeritaDetail {
     id_berita: number;
@@ -94,7 +94,7 @@ export default function BeritaDetail() {
                 {berita.gambar && (
                     <div className="rounded-xl overflow-hidden mb-8">
                         <img
-                            src={`/api/upload/${berita.gambar}`}
+                            src={getImageUrl(berita.gambar)}
                             alt={berita.judul_berita}
                             className="w-full h-auto"
                         />

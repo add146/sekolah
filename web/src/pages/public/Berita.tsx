@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Calendar, Eye, Search } from 'lucide-react';
-import { beritaApi, kategoriApi } from '../../lib/api';
+import { beritaApi, kategoriApi, getImageUrl } from '../../lib/api';
 
 interface Berita {
     id_berita: number;
@@ -91,8 +91,8 @@ export default function Berita() {
                                 key={kat.id_kategori}
                                 onClick={() => setSearchParams({ kategori: kat.slug_kategori })}
                                 className={`px-4 py-2 rounded-lg whitespace-nowrap ${currentKategori === kat.slug_kategori
-                                        ? 'bg-primary-600 text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    ? 'bg-primary-600 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {kat.nama_kategori}
@@ -117,7 +117,7 @@ export default function Berita() {
                                 {item.gambar && (
                                     <div className="aspect-video overflow-hidden">
                                         <img
-                                            src={`/api/upload/${item.gambar}`}
+                                            src={getImageUrl(item.gambar)}
                                             alt={item.judul_berita}
                                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                         />

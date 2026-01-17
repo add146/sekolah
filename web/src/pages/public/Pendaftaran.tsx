@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { pendaftaranApi, konfiguasiApi } from '../../lib/api';
+import { pendaftaranApi, konfiguasiApi, getImageUrl } from '../../lib/api';
 import { useAuthStore } from '../../lib/store';
 import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -14,7 +14,7 @@ export default function Pendaftaran() {
     const [config, setConfig] = useState<any>({});
     const [loading, setLoading] = useState(true);
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+    const { register, handleSubmit, formState: { isSubmitting } } = useForm();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -50,10 +50,6 @@ export default function Pendaftaran() {
         } catch (error: any) {
             toast.error(error.response?.data?.message || 'Terjadi kesalahan');
         }
-    };
-
-    const getImageUrl = (img: string) => {
-        return img.startsWith('http') || img.startsWith('/') ? img : `/api/upload/${img}`;
     };
 
     if (loading) {

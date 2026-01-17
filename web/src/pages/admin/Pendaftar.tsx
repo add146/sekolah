@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, CheckCircle, XCircle, FileText, Eye, Edit2, X } from 'lucide-react';
-import { siswaApi, pendaftaranApi } from '../../lib/api';
+import { siswaApi, pendaftaranApi, getImageUrl, API_URL } from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface Pendaftar {
@@ -265,7 +265,7 @@ export default function AdminPendaftar() {
                                     {dokumen.map((doc) => (
                                         <div key={doc.id_dokumen} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
                                             <div className="w-16 h-16 bg-gray-200 rounded overflow-hidden">
-                                                <img src={`/api/upload/${doc.gambar}`} alt="" className="w-full h-full object-cover" />
+                                                <img src={getImageUrl(doc.gambar)} alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex-1">
                                                 <p className="font-medium text-gray-900">{doc.nama_jenis_dokumen}</p>
@@ -278,7 +278,7 @@ export default function AdminPendaftar() {
                                             </div>
                                             <div className="flex gap-1">
                                                 <a
-                                                    href={`/api/upload/${doc.gambar}`}
+                                                    href={`${API_URL}/api/upload/${doc.gambar}`}
                                                     target="_blank"
                                                     className="p-2 text-gray-500 hover:bg-gray-200 rounded"
                                                 >

@@ -4,7 +4,7 @@ import {
     ArrowRight, Calendar, Eye, ChevronRight, ChevronLeft, X,
     Target, Compass, BookOpen, GraduationCap, Users, Award, Heart
 } from 'lucide-react';
-import { beritaApi, galeriApi, konfiguasiApi } from '../../lib/api';
+import { beritaApi, galeriApi, konfiguasiApi, getImageUrl } from '../../lib/api';
 
 interface Berita {
     id_berita: number;
@@ -86,7 +86,7 @@ export default function Home() {
                             className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
                         >
                             <img
-                                src={`/api/upload/${item.gambar}`}
+                                src={getImageUrl(item.gambar)}
                                 alt={item.judul_slider}
                                 className="w-full h-full object-cover"
                             />
@@ -281,7 +281,7 @@ export default function Home() {
                                     {item.gambar && (
                                         <div className="aspect-video overflow-hidden">
                                             <img
-                                                src={`/api/upload/${item.gambar}`}
+                                                src={getImageUrl(item.gambar)}
                                                 alt={item.judul_berita}
                                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
@@ -332,7 +332,7 @@ export default function Home() {
                                 onClick={() => setLightboxImage(item)}
                             >
                                 <img
-                                    src={`/api/upload/${item.gambar}`}
+                                    src={getImageUrl(item.gambar)}
                                     alt={item.judul_galeri}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
@@ -361,7 +361,7 @@ export default function Home() {
                         <X className="w-8 h-8" />
                     </button>
                     <img
-                        src={`/api/upload/${lightboxImage.gambar}`}
+                        src={getImageUrl(lightboxImage.gambar)}
                         alt={lightboxImage.judul_galeri}
                         className="max-w-full max-h-[90vh] rounded-lg object-contain"
                         onClick={(e) => e.stopPropagation()}

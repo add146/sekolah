@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { authApi } from './api';
+import { authApi, API_URL } from './api';
 
 interface User {
     id: number;
@@ -168,7 +168,7 @@ export const useKonfigurasiStore = create<KonfigurasiState>((set) => ({
     fetchConfig: async () => {
         set({ isLoading: true });
         try {
-            const response = await fetch('/api/konfigurasi');
+            const response = await fetch(`${API_URL}/api/konfigurasi`);
             const data = await response.json();
             set({ config: data.data, isLoading: false });
         } catch {

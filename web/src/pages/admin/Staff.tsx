@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search, X } from 'lucide-react';
-import { staffApi, kategoriApi, uploadApi } from '../../lib/api';
+import { staffApi, kategoriApi, uploadApi, getImageUrl } from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface Staff {
@@ -192,7 +192,7 @@ export default function AdminStaff() {
                             <div className="flex items-start gap-3">
                                 <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden flex-shrink-0">
                                     {item.gambar ? (
-                                        <img src={`/api/upload/${item.gambar}`} alt="" className="w-full h-full object-cover" />
+                                        <img src={getImageUrl(item.gambar)} alt="" className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-2xl text-gray-400">
                                             {item.nama_staff?.charAt(0)}
@@ -287,7 +287,7 @@ export default function AdminStaff() {
                                 <label className="form-label">Foto</label>
                                 <input type="file" accept="image/*" onChange={handleImageUpload} className="form-input" />
                                 {form.gambar && (
-                                    <img src={`/api/upload/${form.gambar}`} alt="" className="mt-2 h-20 rounded-lg" />
+                                    <img src={getImageUrl(form.gambar)} alt="" className="mt-2 h-20 rounded-lg" />
                                 )}
                             </div>
 

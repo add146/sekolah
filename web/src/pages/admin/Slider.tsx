@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, X, Image } from 'lucide-react';
-import { uploadApi } from '../../lib/api';
+import { uploadApi, API_URL, getImageUrl } from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface Slider {
@@ -35,7 +35,7 @@ export default function AdminSlider() {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/konfigurasi/slider', {
+            const res = await fetch(`${API_URL}/api/konfigurasi/slider`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
             const data = await res.json();
@@ -97,8 +97,8 @@ export default function AdminSlider() {
         }
         try {
             const endpoint = editingItem
-                ? `/api/konfigurasi/slider/${editingItem.id_slider}`
-                : '/api/konfigurasi/slider';
+                ? `${API_URL}/api/konfigurasi/slider/${editingItem.id_slider}`
+                : `${API_URL}/api/konfigurasi/slider`;
             const method = editingItem ? 'PUT' : 'POST';
 
             const token = localStorage.getItem('token');
@@ -124,7 +124,7 @@ export default function AdminSlider() {
         if (!confirm('Yakin ingin menghapus slider ini?')) return;
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/konfigurasi/slider/${id}`, {
+            await fetch(`${API_URL}/api/konfigurasi/slider/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -162,7 +162,7 @@ export default function AdminSlider() {
                         <div key={item.id_slider} className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
                             <div className="aspect-video bg-gray-100">
                                 {item.gambar && (
-                                    <img src={`/api/upload/${item.gambar}`} alt="" className="w-full h-full object-cover" />
+                                    <img src={getImageUrl(item.gambar)} alt="" className="w-full h-full object-cover" />
                                 )}
                             </div>
                             <div className="p-4">
@@ -226,7 +226,7 @@ export default function AdminSlider() {
                                 <label className="form-label">Gambar * (Ukuran ideal: 1920x600)</label>
                                 <input type="file" accept="image/*" onChange={handleImageUpload} className="form-input" />
                                 {form.gambar && (
-                                    <img src={`/api/upload/${form.gambar}`} alt="" className="mt-2 h-32 w-full object-cover rounded-lg" />
+                                    <img src={getImageUrl(form.gambar)} alt="" className="mt-2 h-32 w-full object-cover rounded-lg" />
                                 )}
                             </div>
                             <div>

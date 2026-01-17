@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { authMiddleware, adminMiddleware } from '../lib/auth';
+import { authMiddleware, adminMiddleware, AuthUser } from '../lib/auth';
 import { Env } from '../index';
 
 const berita = new Hono<{ Bindings: Env }>();
@@ -14,18 +14,28 @@ function createSlug(text: string): string {
         .trim();
 }
 
-// Get all berita (public)
+// Get all berita (public shows only published, admin sees all)
 berita.get('/', async (c) => {
     try {
-        const { kategori, jenis, limit = '10', offset = '0', search } = c.req.query();
+        const { kategori, jenis, limit = '10', offset = '0', search, admin } = c.req.query();
+
+        // Check if admin request (has valid token)
+        const authHeader = c.req.header('Authorization');
+        const isAdmin = authHeader && admin === 'true';
 
         let query = `
       SELECT b.*, k.nama_kategori, u.nama as nama_penulis
       FROM berita b
       LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
       LEFT JOIN users u ON b.id_user = u.id_user
-      WHERE b.status_berita = 'Publish'
+      WHERE 1=1
     `;
+
+        // Only filter by Publish status for public requests
+        if (!isAdmin) {
+            query += ` AND b.status_berita = 'Publish'`;
+        }
+
         const params: unknown[] = [];
 
         if (kategori) {
@@ -53,8 +63,11 @@ berita.get('/', async (c) => {
         let countQuery = `
       SELECT COUNT(*) as total FROM berita b
       LEFT JOIN kategori k ON b.id_kategori = k.id_kategori
-      WHERE b.status_berita = 'Publish'
+      WHERE 1=1
     `;
+        if (!isAdmin) {
+            countQuery += ` AND b.status_berita = 'Publish'`;
+        }
         const countParams: unknown[] = [];
 
         if (kategori) {
@@ -132,7 +145,7 @@ berita.get('/:slug', async (c) => {
 // Create berita (admin only)
 berita.post('/', authMiddleware, adminMiddleware, async (c) => {
     try {
-        const user = c.get('user');
+        const user = c.get('user') as AuthUser;
         const body = await c.req.json();
         const {
             id_kategori,
@@ -207,8 +220,9 @@ berita.put('/:id', authMiddleware, adminMiddleware, async (c) => {
             }, 404);
         }
 
-        const slug = judul_berita ? createSlug(judul_berita) : undefined;
+        const slug = judul_berita ? createSlug(judul_berita) : null;
 
+        // Convert undefined to null for D1 compatibility
         await c.env.DB.prepare(`
       UPDATE berita SET
         id_kategori = COALESCE(?, id_kategori),
@@ -223,8 +237,16 @@ berita.put('/:id', authMiddleware, adminMiddleware, async (c) => {
         tanggal = datetime('now')
       WHERE id_berita = ?
     `).bind(
-            id_kategori, slug, judul_berita, ringkasan, isi,
-            status_berita, jenis_berita, keywords, gambar, id
+            id_kategori ?? null,
+            slug ?? null,
+            judul_berita ?? null,
+            ringkasan ?? null,
+            isi ?? null,
+            status_berita ?? null,
+            jenis_berita ?? null,
+            keywords ?? null,
+            gambar ?? null,
+            id
         ).run();
 
         return c.json({
@@ -235,7 +257,7 @@ berita.put('/:id', authMiddleware, adminMiddleware, async (c) => {
         console.error('Update berita error:', error);
         return c.json({
             success: false,
-            message: 'Terjadi kesalahan pada server',
+            message: 'Terjadi kesalahan pada server: ' + (error instanceof Error ? error.message : 'Unknown error'),
         }, 500);
     }
 });

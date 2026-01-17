@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { galeriApi, kategoriApi } from '../../lib/api';
+import { galeriApi, kategoriApi, getImageUrl } from '../../lib/api';
 import { X } from 'lucide-react';
 
 interface GaleriItem {
@@ -69,8 +69,8 @@ export default function Galeri() {
                     <button
                         onClick={() => setSelectedKategori(null)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedKategori === null
-                                ? 'bg-primary-600 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-primary-600 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                     >
                         Semua
@@ -80,8 +80,8 @@ export default function Galeri() {
                             key={k.id_kategori_galeri}
                             onClick={() => setSelectedKategori(k.id_kategori_galeri)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedKategori === k.id_kategori_galeri
-                                    ? 'bg-primary-600 text-white'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-primary-600 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                         >
                             {k.nama_kategori_galeri}
@@ -104,7 +104,7 @@ export default function Galeri() {
                                 className="aspect-square rounded-xl overflow-hidden cursor-pointer group"
                             >
                                 <img
-                                    src={`/api/upload/${item.gambar}`}
+                                    src={getImageUrl(item.gambar)}
                                     alt={item.judul_galeri}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 />
@@ -127,7 +127,7 @@ export default function Galeri() {
                         <X className="w-8 h-8" />
                     </button>
                     <img
-                        src={`/api/upload/${selectedImage.gambar}`}
+                        src={getImageUrl(selectedImage.gambar)}
                         alt={selectedImage.judul_galeri}
                         className="max-w-full max-h-[90vh] object-contain rounded-lg"
                         onClick={(e) => e.stopPropagation()}

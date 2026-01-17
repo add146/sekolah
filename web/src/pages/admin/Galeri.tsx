@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, X, Image as ImageIcon, Edit2 } from 'lucide-react';
-import { galeriApi, kategoriApi, uploadApi } from '../../lib/api';
+import { galeriApi, kategoriApi, uploadApi, getImageUrl, API_URL } from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface Galeri {
@@ -110,7 +110,7 @@ export default function AdminGaleri() {
             };
 
             if (editingItem) {
-                const res = await fetch(`/api/galeri/${editingItem.id_galeri}`, {
+                const res = await fetch(`${API_URL}/api/galeri/${editingItem.id_galeri}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ export default function AdminGaleri() {
         if (!confirm('Yakin ingin menghapus gambar ini?')) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/galeri/${id}`, {
+            const res = await fetch(`${API_URL}/api/galeri/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -174,7 +174,7 @@ export default function AdminGaleri() {
                         {galeri.map((item) => (
                             <div key={item.id_galeri} className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100">
                                 <img
-                                    src={`/api/upload/${item.gambar}`}
+                                    src={getImageUrl(item.gambar)}
                                     alt={item.judul_galeri}
                                     className="w-full h-full object-cover"
                                 />
@@ -255,7 +255,7 @@ export default function AdminGaleri() {
                             <div>
                                 <label className="form-label">Gambar *</label>
                                 {form.gambar && (
-                                    <img src={`/api/upload/${form.gambar}`} alt="" className="mb-2 h-32 rounded-lg object-cover" />
+                                    <img src={getImageUrl(form.gambar)} alt="" className="mb-2 h-32 rounded-lg object-cover" />
                                 )}
                                 <input
                                     type="file"

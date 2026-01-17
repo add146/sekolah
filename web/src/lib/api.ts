@@ -1,6 +1,17 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+// Use Workers API URL in production, empty string for local dev (uses Vite proxy)
+export const API_URL = window.location.hostname === 'localhost'
+    ? ''
+    : 'https://sekolah-api.khibrohstudio.workers.dev';
+
+// Helper function to get correct image URL from R2
+export const getImageUrl = (path: string | undefined | null): string => {
+    if (!path) return '';
+    if (path.startsWith('http') || path.startsWith('data:')) return path;
+    if (path.startsWith('/')) return `${API_URL}${path}`;
+    return `${API_URL}/api/upload/${path}`;
+};
 
 const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -51,7 +62,7 @@ export const authApi = {
 
 // Berita API
 export const beritaApi = {
-    getAll: (params?: { kategori?: string; jenis?: string; limit?: number; offset?: number; search?: string }) =>
+    getAll: (params?: { kategori?: string; jenis?: string; limit?: number; offset?: number; search?: string; admin?: boolean }) =>
         api.get('/berita', { params }),
     getBySlug: (slug: string) => api.get(`/berita/${slug}`),
     create: (data: unknown) => api.post('/berita', data),

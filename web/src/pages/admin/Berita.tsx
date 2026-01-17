@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Eye, Search, X } from 'lucide-react';
-import { beritaApi, kategoriApi, uploadApi } from '../../lib/api';
+import { beritaApi, kategoriApi, uploadApi, getImageUrl } from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface Berita {
@@ -48,7 +48,7 @@ export default function AdminBerita() {
         setLoading(true);
         try {
             const [beritaRes, kategoriRes] = await Promise.all([
-                beritaApi.getAll({ limit: 100 }),
+                beritaApi.getAll({ limit: 100, admin: true }),
                 kategoriApi.getBerita(),
             ]);
             setBerita(beritaRes.data.data || []);
@@ -193,7 +193,7 @@ export default function AdminBerita() {
                                         <div className="flex items-center gap-3">
                                             {item.gambar && (
                                                 <img
-                                                    src={`/api/upload/${item.gambar}`}
+                                                    src={getImageUrl(item.gambar)}
                                                     alt=""
                                                     className="w-12 h-12 rounded-lg object-cover"
                                                 />
@@ -333,7 +333,7 @@ export default function AdminBerita() {
                                     className="form-input"
                                 />
                                 {form.gambar && (
-                                    <img src={`/api/upload/${form.gambar}`} alt="" className="mt-2 h-24 rounded-lg" />
+                                    <img src={getImageUrl(form.gambar)} alt="" className="mt-2 h-24 rounded-lg" />
                                 )}
                             </div>
 

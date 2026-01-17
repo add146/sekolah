@@ -1,21 +1,40 @@
 import { Outlet, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Menu, X, Phone, Mail, Facebook, Instagram, Youtube } from 'lucide-react';
+import { Menu, X, Phone, Mail, Facebook, Instagram, Youtube, ChevronDown } from 'lucide-react';
 import { useKonfigurasiStore } from '../../lib/store';
+import { getImageUrl } from '../../lib/api';
+
+interface Halaman {
+    id_halaman: number;
+    judul: string;
+    slug: string;
+}
 
 export default function PublicLayout() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [profilDropdownOpen, setProfilDropdownOpen] = useState(false);
+    const [halamanProfil, setHalamanProfil] = useState<Halaman[]>([]);
     const { config, fetchConfig } = useKonfigurasiStore();
 
     useEffect(() => {
         fetchConfig();
+        fetchHalaman();
     }, [fetchConfig]);
+
+    const fetchHalaman = async () => {
+        try {
+            const res = await fetch('/api/halaman');
+            const data = await res.json();
+            setHalamanProfil(data.data || []);
+        } catch (error) {
+            console.error('Error fetching halaman:', error);
+        }
+    };
 
     // Apply theme colors dynamically
     useEffect(() => {
         if (config?.warna_primary) {
             const primary = config.warna_primary;
-            // Generate all color shades for Tailwind (50-950)
             document.documentElement.style.setProperty('--color-primary-50', adjustColor(primary, 0.95));
             document.documentElement.style.setProperty('--color-primary-100', adjustColor(primary, 0.85));
             document.documentElement.style.setProperty('--color-primary-200', adjustColor(primary, 0.7));
@@ -30,7 +49,6 @@ export default function PublicLayout() {
         }
         if (config?.warna_secondary) {
             const secondary = config.warna_secondary;
-            // Generate all color shades for secondary
             document.documentElement.style.setProperty('--color-secondary-50', adjustColor(secondary, 0.95));
             document.documentElement.style.setProperty('--color-secondary-100', adjustColor(secondary, 0.85));
             document.documentElement.style.setProperty('--color-secondary-200', adjustColor(secondary, 0.7));
@@ -45,7 +63,6 @@ export default function PublicLayout() {
         }
     }, [config?.warna_primary, config?.warna_secondary]);
 
-    // Helper function to adjust color brightness
     function adjustColor(hex: string, percent: number): string {
         const num = parseInt(hex.replace('#', ''), 16);
         const r = Math.min(255, Math.max(0, (num >> 16) + Math.round(255 * percent)));
@@ -56,7 +73,6 @@ export default function PublicLayout() {
 
     const navLinks = [
         { to: '/', label: 'Beranda' },
-        { to: '/profil', label: 'Profil' },
         { to: '/berita', label: 'Berita' },
         { to: '/galeri', label: 'Galeri' },
         { to: '/pendaftaran', label: 'Pendaftaran' },
@@ -115,7 +131,7 @@ export default function PublicLayout() {
                         <Link to="/" className="flex items-center gap-3">
                             {config?.logo && (
                                 <img
-                                    src={config.logo.startsWith('http') || config.logo.startsWith('/') ? config.logo : `/api/upload/${config.logo}`}
+                                    src={getImageUrl(config.logo)}
                                     alt="Logo"
                                     className="h-10 w-auto object-contain"
                                 />
@@ -127,7 +143,46 @@ export default function PublicLayout() {
 
                         {/* Desktop Nav */}
                         <nav className="hidden md:flex items-center gap-6">
-                            {navLinks.map((link) => (
+                            <Link to="/" className="text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                                Beranda
+                            </Link>
+
+                            {/* Profil Dropdown */}
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setProfilDropdownOpen(true)}
+                                onMouseLeave={() => setProfilDropdownOpen(false)}
+                            >
+                                <button className="flex items-center gap-1 text-gray-700 hover:text-primary-600 font-medium transition-colors">
+                                    Profil
+                                    {halamanProfil.length > 0 && (
+                                        <ChevronDown className={`w-4 h-4 transition-transform ${profilDropdownOpen ? 'rotate-180' : ''}`} />
+                                    )}
+                                </button>
+
+                                {/* Dropdown Menu */}
+                                {profilDropdownOpen && halamanProfil.length > 0 && (
+                                    <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 animate-fade-in">
+                                        <Link
+                                            to="/profil"
+                                            className="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                                        >
+                                            Tentang Kami
+                                        </Link>
+                                        {halamanProfil.map((item) => (
+                                            <Link
+                                                key={item.id_halaman}
+                                                to={`/halaman/${item.slug}`}
+                                                className="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                                            >
+                                                {item.judul}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {navLinks.slice(1).map((link) => (
                                 <Link
                                     key={link.to}
                                     to={link.to}
@@ -158,7 +213,49 @@ export default function PublicLayout() {
                     {/* Mobile Nav */}
                     {isMenuOpen && (
                         <nav className="md:hidden py-4 border-t animate-slide-up">
-                            {navLinks.map((link) => (
+                            <Link
+                                to="/"
+                                className="block py-2 text-gray-700 hover:text-primary-600"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Beranda
+                            </Link>
+
+                            {/* Mobile Profil Section */}
+                            <div className="py-2">
+                                <button
+                                    onClick={() => setProfilDropdownOpen(!profilDropdownOpen)}
+                                    className="flex items-center justify-between w-full text-gray-700 hover:text-primary-600"
+                                >
+                                    <span>Profil</span>
+                                    {halamanProfil.length > 0 && (
+                                        <ChevronDown className={`w-4 h-4 transition-transform ${profilDropdownOpen ? 'rotate-180' : ''}`} />
+                                    )}
+                                </button>
+                                {profilDropdownOpen && (
+                                    <div className="ml-4 mt-2 space-y-1">
+                                        <Link
+                                            to="/profil"
+                                            className="block py-1 text-sm text-gray-600 hover:text-primary-600"
+                                            onClick={() => setIsMenuOpen(false)}
+                                        >
+                                            Tentang Kami
+                                        </Link>
+                                        {halamanProfil.map((item) => (
+                                            <Link
+                                                key={item.id_halaman}
+                                                to={`/halaman/${item.slug}`}
+                                                className="block py-1 text-sm text-gray-600 hover:text-primary-600"
+                                                onClick={() => setIsMenuOpen(false)}
+                                            >
+                                                {item.judul}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {navLinks.slice(1).map((link) => (
                                 <Link
                                     key={link.to}
                                     to={link.to}
@@ -206,7 +303,22 @@ export default function PublicLayout() {
                         <div>
                             <h3 className="font-bold text-lg mb-4">Link Cepat</h3>
                             <div className="space-y-2">
-                                {navLinks.map((link) => (
+                                <Link to="/" className="block text-gray-400 hover:text-white text-sm transition-colors">
+                                    Beranda
+                                </Link>
+                                <Link to="/profil" className="block text-gray-400 hover:text-white text-sm transition-colors">
+                                    Profil
+                                </Link>
+                                {halamanProfil.map((item) => (
+                                    <Link
+                                        key={item.id_halaman}
+                                        to={`/halaman/${item.slug}`}
+                                        className="block text-gray-400 hover:text-white text-sm transition-colors"
+                                    >
+                                        {item.judul}
+                                    </Link>
+                                ))}
+                                {navLinks.slice(1).map((link) => (
                                     <Link
                                         key={link.to}
                                         to={link.to}
