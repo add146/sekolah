@@ -89,8 +89,8 @@ export default function AdminJenjangPendidikan() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!form.judul_jenjang_pendidikan || !form.id_jenjang) {
-            toast.error('Harap isi nama program dan pilih jenjang');
+        if (!form.id_jenjang) {
+            toast.error('Harap pilih jenjang');
             return;
         }
         setSaving(true);
@@ -101,10 +101,10 @@ export default function AdminJenjangPendidikan() {
             };
             if (editId) {
                 await jenjangPendidikanApi.update(editId, payload);
-                toast.success('Program berhasil diperbarui');
+                toast.success('Jenjang berhasil diperbarui');
             } else {
                 await jenjangPendidikanApi.create(payload);
-                toast.success('Program berhasil ditambahkan');
+                toast.success('Jenjang berhasil ditambahkan');
             }
             setShowModal(false);
             fetchData();
@@ -116,10 +116,10 @@ export default function AdminJenjangPendidikan() {
     };
 
     const handleDelete = async (id: number) => {
-        if (!confirm('Yakin ingin menghapus program ini?')) return;
+        if (!confirm('Yakin ingin menghapus jenjang ini?')) return;
         try {
             await jenjangPendidikanApi.delete(id);
-            toast.success('Program berhasil dihapus');
+            toast.success('Jenjang berhasil dihapus');
             fetchData();
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string } } };
@@ -135,11 +135,11 @@ export default function AdminJenjangPendidikan() {
         <div className="animate-fade-in">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Kelola Program/Jurusan</h1>
-                    <p className="text-gray-600">Atur program pendidikan yang tersedia</p>
+                    <h1 className="text-2xl font-bold text-gray-900">Kelola Jenjang</h1>
+                    <p className="text-gray-600">Atur jenjang pendidikan yang tersedia</p>
                 </div>
                 <button onClick={() => openModal()} className="btn btn-primary">
-                    <Plus className="w-4 h-4 mr-2" /> Tambah Program
+                    <Plus className="w-4 h-4 mr-2" /> Tambah Jenjang
                 </button>
             </div>
 
@@ -150,8 +150,8 @@ export default function AdminJenjangPendidikan() {
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Nama Program</th>
-                                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Jenjang</th>
+                                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Nama Program/Jurusan</th>
+                                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Jenjang Pendidikan</th>
                                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Ringkasan</th>
                                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Status</th>
                                 <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">Aksi</th>
@@ -163,7 +163,7 @@ export default function AdminJenjangPendidikan() {
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
                                             <GraduationCap className="w-5 h-5 text-primary-600" />
-                                            <span className="font-medium text-gray-900">{item.judul_jenjang_pendidikan}</span>
+                                            <span className="font-medium text-gray-900">{item.judul_jenjang_pendidikan || '-'}</span>
                                         </div>
                                     </td>
                                     <td className="px-4 py-3 text-sm text-gray-600">{item.nama_jenjang}</td>
@@ -188,7 +188,7 @@ export default function AdminJenjangPendidikan() {
                             {data.length === 0 && (
                                 <tr>
                                     <td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                                        Belum ada data program
+                                        Belum ada data jenjang
                                     </td>
                                 </tr>
                             )}
@@ -202,25 +202,14 @@ export default function AdminJenjangPendidikan() {
                 <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white">
-                            <h2 className="text-lg font-bold">{editId ? 'Edit Program' : 'Tambah Program'}</h2>
+                            <h2 className="text-lg font-bold">{editId ? 'Edit Jenjang' : 'Tambah Jenjang'}</h2>
                             <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-4 space-y-4">
                             <div>
-                                <label className="form-label">Nama Program/Jurusan *</label>
-                                <input
-                                    type="text"
-                                    value={form.judul_jenjang_pendidikan}
-                                    onChange={(e) => setForm({ ...form, judul_jenjang_pendidikan: e.target.value })}
-                                    className="form-input"
-                                    placeholder="Contoh: SMK Teknik Komputer Jaringan"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="form-label">Jenjang *</label>
+                                <label className="form-label">Jenjang Pendidikan *</label>
                                 <select
                                     value={form.id_jenjang}
                                     onChange={(e) => setForm({ ...form, id_jenjang: e.target.value })}
@@ -232,6 +221,16 @@ export default function AdminJenjangPendidikan() {
                                         <option key={j.id_jenjang} value={j.id_jenjang}>{j.nama_jenjang}</option>
                                     ))}
                                 </select>
+                            </div>
+                            <div>
+                                <label className="form-label">Nama Program/Jurusan</label>
+                                <input
+                                    type="text"
+                                    value={form.judul_jenjang_pendidikan}
+                                    onChange={(e) => setForm({ ...form, judul_jenjang_pendidikan: e.target.value })}
+                                    className="form-input"
+                                    placeholder="Contoh: Teknik Komputer Jaringan (opsional)"
+                                />
                             </div>
                             <div>
                                 <label className="form-label">Ringkasan</label>

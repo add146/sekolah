@@ -15,7 +15,6 @@ import Profil from './pages/public/Profil';
 import HalamanDetail from './pages/public/HalamanDetail';
 import Kontak from './pages/public/Kontak';
 import Pendaftaran from './pages/public/Pendaftaran';
-import Signin from './pages/public/Signin';
 import Login from './pages/public/Login';
 
 // Admin Pages
@@ -58,7 +57,6 @@ function App() {
                 <Route path="/halaman/:slug" element={<HalamanDetail />} />
                 <Route path="/kontak" element={<Kontak />} />
                 <Route path="/pendaftaran" element={<Pendaftaran />} />
-                <Route path="/signin" element={<Signin />} />
                 <Route path="/login" element={<Login />} />
             </Route>
 

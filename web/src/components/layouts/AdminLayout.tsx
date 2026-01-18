@@ -19,7 +19,7 @@ const sidebarLinks = [
     { to: '/admin/prestasi', icon: Trophy, label: 'Prestasi' },
     { to: '/admin/pendaftar', icon: UserCheck, label: 'Pendaftar' },
     { to: '/admin/gelombang', icon: Calendar, label: 'Gelombang' },
-    { to: '/admin/program', icon: BookOpen, label: 'Program' },
+    { to: '/admin/program', icon: BookOpen, label: 'Jenjang' },
     { to: '/admin/konfigurasi', icon: Settings, label: 'Konfigurasi' },
 ];
 

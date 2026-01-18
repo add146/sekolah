@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search, CheckCircle, XCircle, FileText, Eye, Edit2, X } from 'lucide-react';
-import { siswaApi, pendaftaranApi, getImageUrl, API_URL } from '../../lib/api';
+import { Search, CheckCircle, XCircle, FileText, Edit2, X } from 'lucide-react';
+import { siswaApi, pendaftaranApi } from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface Pendaftar {
@@ -42,7 +42,6 @@ export default function AdminPendaftar() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [selectedPendaftar, setSelectedPendaftar] = useState<Pendaftar | null>(null);
-    const [dokumen, setDokumen] = useState<Dokumen[]>([]);
 
     // Edit modal states
     const [showEditModal, setShowEditModal] = useState(false);
@@ -74,7 +73,6 @@ export default function AdminPendaftar() {
         try {
             const res = await siswaApi.getById(item.id_siswa);
             setSelectedPendaftar(res.data.data);
-            setDokumen(res.data.data?.dokumen || []);
         } catch (error) {
             toast.error('Gagal memuat detail');
         }
@@ -88,18 +86,6 @@ export default function AdminPendaftar() {
             setSelectedPendaftar(null);
         } catch (error) {
             toast.error('Gagal mengubah status');
-        }
-    };
-
-    const updateDokumenStatus = async (id: number, status: string) => {
-        try {
-            await pendaftaranApi.updateDokumenStatus(id, status);
-            toast.success(`Dokumen ${status.toLowerCase()}`);
-            if (selectedPendaftar) {
-                viewDetail(selectedPendaftar);
-            }
-        } catch (error) {
-            toast.error('Gagal mengubah status dokumen');
         }
     };
 
@@ -252,55 +238,6 @@ export default function AdminPendaftar() {
                                     <p className="font-medium">{selectedPendaftar.judul_jenjang_pendidikan || '-'}</p>
                                 </div>
                             </div>
-
-                            <h3 className="font-bold text-gray-900 mb-4">
-                                <FileText className="w-5 h-5 inline mr-2" />
-                                Dokumen Pendaftaran
-                            </h3>
-
-                            {dokumen.length === 0 ? (
-                                <p className="text-gray-500 text-sm">Belum ada dokumen yang diupload</p>
-                            ) : (
-                                <div className="space-y-3">
-                                    {dokumen.map((doc) => (
-                                        <div key={doc.id_dokumen} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                                            <div className="w-16 h-16 bg-gray-200 rounded overflow-hidden">
-                                                <img src={getImageUrl(doc.gambar)} alt="" className="w-full h-full object-cover" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="font-medium text-gray-900">{doc.nama_jenis_dokumen}</p>
-                                                <span className={`text-xs px-2 py-0.5 rounded-full ${doc.status_dokumen === 'Disetujui' ? 'bg-green-100 text-green-700' :
-                                                    doc.status_dokumen === 'Ditolak' ? 'bg-red-100 text-red-700' :
-                                                        'bg-yellow-100 text-yellow-700'
-                                                    }`}>
-                                                    {doc.status_dokumen}
-                                                </span>
-                                            </div>
-                                            <div className="flex gap-1">
-                                                <a
-                                                    href={`${API_URL}/api/upload/${doc.gambar}`}
-                                                    target="_blank"
-                                                    className="p-2 text-gray-500 hover:bg-gray-200 rounded"
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                </a>
-                                                <button
-                                                    onClick={() => updateDokumenStatus(doc.id_dokumen, 'Disetujui')}
-                                                    className="p-2 text-green-600 hover:bg-green-100 rounded"
-                                                >
-                                                    <CheckCircle className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => updateDokumenStatus(doc.id_dokumen, 'Ditolak')}
-                                                    className="p-2 text-red-600 hover:bg-red-100 rounded"
-                                                >
-                                                    <XCircle className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
                         </div>
                     ) : (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">

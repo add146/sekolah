@@ -70,46 +70,33 @@ pendaftaran.get('/jenjang', async (c) => {
     }
 });
 
-// Submit pendaftaran (requires siswa auth)
-pendaftaran.post('/daftar', authMiddleware, async (c) => {
+// Submit pendaftaran (public - no auth required)
+pendaftaran.post('/daftar', async (c) => {
     try {
-        const user = c.get('user');
-
-        if (user.type !== 'siswa') {
-            return c.json({ success: false, message: 'Akses ditolak' }, 403);
-        }
-
         const body = await c.req.json();
-        const kodeSiswa = generateCode(32);
 
-        // Check if already registered
-        const existing = await c.env.DB.prepare(
-            'SELECT id_siswa FROM siswa WHERE id_akun = ?'
-        ).bind(user.id).first();
-
-        if (existing) {
-            return c.json({
-                success: false,
-                message: 'Anda sudah terdaftar. Silakan lengkapi data pendaftaran.',
-                data: { id_siswa: existing.id_siswa },
-            }, 400);
+        // Validate required fields
+        if (!body.nama_siswa || !body.id_gelombang || !body.jenis_kelamin) {
+            return c.json({ success: false, message: 'Nama, gelombang, dan jenis kelamin harus diisi' }, 400);
         }
+
+        const kodeSiswa = generateCode(32);
 
         const result = await c.env.DB.prepare(`
       INSERT INTO siswa (
-        id_akun, id_gelombang, id_jenjang, id_agama, id_hubungan,
+        id_gelombang, id_jenjang, id_agama, id_hubungan,
         id_pekerjaan_ayah, id_pekerjaan_ibu, id_pekerjaan_wali,
         kode_siswa, nama_siswa, tempat_lahir, tanggal_lahir, jenis_kelamin,
         anak_ke, jumlah_saudara, alamat, rt, rw, kelurahan, kecamatan, kota, provinsi,
         kode_pos, telepon, email, asal_sekolah, nama_ayah, telepon_ayah,
         nama_ibu, telepon_ibu, nama_wali, telepon_wali, alamat_ortu,
         status_siswa, status_pendaftar, tanggal_post
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Menunggu', 'Baru', datetime('now'))
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Menunggu', 'Baru', datetime('now'))
     `).bind(
-            user.id, body.id_gelombang, body.id_jenjang, body.id_agama, body.id_hubungan,
+            body.id_gelombang, body.id_jenjang || null, body.id_agama || null, body.id_hubungan || null,
             body.id_pekerjaan_ayah || null, body.id_pekerjaan_ibu || null, body.id_pekerjaan_wali || null,
-            kodeSiswa, body.nama_siswa, body.tempat_lahir, body.tanggal_lahir, body.jenis_kelamin,
-            body.anak_ke || 1, body.jumlah_saudara || 0, body.alamat, body.rt || '', body.rw || '',
+            kodeSiswa, body.nama_siswa, body.tempat_lahir || '', body.tanggal_lahir || null, body.jenis_kelamin,
+            body.anak_ke || 1, body.jumlah_saudara || 0, body.alamat || '', body.rt || '', body.rw || '',
             body.kelurahan || '', body.kecamatan || '', body.kota || '', body.provinsi || '',
             body.kode_pos || '', body.telepon || '', body.email || '', body.asal_sekolah || '',
             body.nama_ayah || '', body.telepon_ayah || '', body.nama_ibu || '', body.telepon_ibu || '',
@@ -118,7 +105,7 @@ pendaftaran.post('/daftar', authMiddleware, async (c) => {
 
         return c.json({
             success: true,
-            message: 'Pendaftaran berhasil. Silakan lengkapi dokumen yang diperlukan.',
+            message: 'Pendaftaran berhasil! Silakan tunggu informasi selanjutnya.',
             data: { id_siswa: result.meta.last_row_id, kode_siswa: kodeSiswa },
         });
     } catch (error) {

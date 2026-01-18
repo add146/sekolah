@@ -1,20 +1,19 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { pendaftaranApi, konfiguasiApi, getImageUrl } from '../../lib/api';
-import { useAuthStore } from '../../lib/store';
-import { X } from 'lucide-react';
+import { pendaftaranApi, konfiguasiApi, getImageUrl, API_URL } from '../../lib/api';
+import { X, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Pendaftaran() {
-    const navigate = useNavigate();
-    const { isAuthenticated, userType } = useAuthStore();
     const [gelombang, setGelombang] = useState([]);
     const [jenjang, setJenjang] = useState([]);
     const [config, setConfig] = useState<any>({});
     const [loading, setLoading] = useState(true);
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-    const { register, handleSubmit, formState: { isSubmitting } } = useForm();
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [kodePendaftaran, setKodePendaftaran] = useState('');
+    const [selectedJenjang, setSelectedJenjang] = useState<any>(null);
+    const { register, handleSubmit, formState: { isSubmitting }, reset } = useForm();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,18 +36,24 @@ export default function Pendaftaran() {
     }, []);
 
     const onSubmit = async (data: any) => {
-        if (!isAuthenticated || userType !== 'siswa') {
-            toast.error('Silakan login terlebih dahulu');
-            navigate('/signin');
-            return;
-        }
-
         try {
-            await pendaftaranApi.daftar(data);
-            toast.success('Pendaftaran berhasil!');
-            navigate('/signin');
+            const res = await fetch(`${API_URL}/api/pendaftaran/daftar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                setKodePendaftaran(result.data.kode_siswa);
+                setIsSuccess(true);
+                reset();
+                toast.success('Pendaftaran berhasil!');
+            } else {
+                toast.error(result.message || 'Terjadi kesalahan');
+            }
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Terjadi kesalahan');
+            toast.error('Terjadi kesalahan pada server');
         }
     };
 
@@ -56,11 +61,42 @@ export default function Pendaftaran() {
         return <div className="flex justify-center py-20"><div className="spinner" /></div>;
     }
 
+    // Success message after registration
+    if (isSuccess) {
+        return (
+            <div className="py-12 animate-fade-in">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-lg mx-auto text-center">
+                        <div className="bg-white rounded-2xl p-8 shadow-lg">
+                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <CheckCircle className="w-10 h-10 text-green-600" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-gray-900 mb-2">Pendaftaran Berhasil!</h1>
+                            <p className="text-gray-600 mb-6">
+                                Terima kasih telah mendaftar. Silakan tunggu informasi selanjutnya dari pihak sekolah.
+                            </p>
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                                <p className="text-sm text-gray-500">Kode Pendaftaran Anda:</p>
+                                <p className="text-lg font-mono font-bold text-primary-600">{kodePendaftaran.slice(0, 8).toUpperCase()}</p>
+                            </div>
+                            <button
+                                onClick={() => setIsSuccess(false)}
+                                className="btn btn-primary"
+                            >
+                                Daftar Lagi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="py-12 animate-fade-in">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-10">
-                    <h1 className="text-3xl font-bold text-gray-900">Pendaftaran Siswa Baru</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Pendaftaran Siswa Baru</h1>
                     <p className="text-gray-600 mt-2">Lengkapi formulir pendaftaran di bawah ini</p>
                 </div>
 
@@ -137,16 +173,30 @@ export default function Pendaftaran() {
                             </div>
 
                             <div>
-                                <label className="form-label">Program/Jurusan *</label>
-                                <select {...register('id_jenjang', { required: true })} className="form-input">
-                                    <option value="">Pilih Program</option>
+                                <label className="form-label">Jenjang</label>
+                                <select
+                                    {...register('id_jenjang')}
+                                    className="form-input"
+                                    onChange={(e) => {
+                                        const selected = jenjang.find((j: any) => j.id_jenjang_pendidikan == e.target.value);
+                                        setSelectedJenjang(selected || null);
+                                    }}
+                                >
+                                    <option value="">Pilih Jenjang</option>
                                     {jenjang.map((j: any) => (
-                                        <option key={j.id_jenjang_pendidikan} value={j.id_jenjang_pendidikan}>{j.judul_jenjang_pendidikan}</option>
+                                        <option key={j.id_jenjang_pendidikan} value={j.id_jenjang_pendidikan}>
+                                            {j.nama_jenjang}{j.judul_jenjang_pendidikan ? ` - ${j.judul_jenjang_pendidikan}` : ''}
+                                        </option>
                                     ))}
                                 </select>
+                                {selectedJenjang?.ringkasan && (
+                                    <p className="text-sm text-gray-600 mt-2 p-3 bg-gray-50 rounded-lg">
+                                        {selectedJenjang.ringkasan}
+                                    </p>
+                                )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="form-label">Nama Lengkap *</label>
                                     <input {...register('nama_siswa', { required: true })} className="form-input" />
@@ -161,7 +211,7 @@ export default function Pendaftaran() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="form-label">Tempat Lahir</label>
                                     <input {...register('tempat_lahir')} className="form-input" />
@@ -170,6 +220,11 @@ export default function Pendaftaran() {
                                     <label className="form-label">Tanggal Lahir</label>
                                     <input type="date" {...register('tanggal_lahir')} className="form-input" />
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="form-label">No. Telepon/WA</label>
+                                <input {...register('telepon')} className="form-input" placeholder="08xxxxx" />
                             </div>
 
                             <div>
@@ -182,7 +237,7 @@ export default function Pendaftaran() {
                                 <input {...register('asal_sekolah')} className="form-input" />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="form-label">Nama Ayah</label>
                                     <input {...register('nama_ayah')} className="form-input" />
@@ -198,12 +253,6 @@ export default function Pendaftaran() {
                                     {isSubmitting ? 'Memproses...' : 'Daftar Sekarang'}
                                 </button>
                             </div>
-
-                            {!isAuthenticated && (
-                                <p className="text-center text-sm text-gray-600 mt-4">
-                                    Belum punya akun? <a href="/signin" className="text-primary-600 hover:underline">Daftar dulu di sini</a>
-                                </p>
-                            )}
                         </form>
                     )}
                 </div>

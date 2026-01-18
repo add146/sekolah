@@ -96,13 +96,13 @@ jenjangPendidikan.put('/:id', authMiddleware, adminMiddleware, async (c) => {
         const id = c.req.param('id');
         const body = await c.req.json();
 
-        const slug = body.judul_jenjang_pendidikan ? createSlug(body.judul_jenjang_pendidikan) : undefined;
+        const slug = body.judul_jenjang_pendidikan ? createSlug(body.judul_jenjang_pendidikan) : '';
 
         await c.env.DB.prepare(`
             UPDATE jenjang_pendidikan SET
                 id_jenjang = COALESCE(?, id_jenjang),
-                slug_jenjang_pendidikan = COALESCE(?, slug_jenjang_pendidikan),
-                judul_jenjang_pendidikan = COALESCE(?, judul_jenjang_pendidikan),
+                slug_jenjang_pendidikan = ?,
+                judul_jenjang_pendidikan = ?,
                 ringkasan = COALESCE(?, ringkasan),
                 isi = COALESCE(?, isi),
                 status_jenjang_pendidikan = COALESCE(?, status_jenjang_pendidikan),
@@ -110,8 +110,8 @@ jenjangPendidikan.put('/:id', authMiddleware, adminMiddleware, async (c) => {
             WHERE id_jenjang_pendidikan = ?
         `).bind(
             body.id_jenjang || null,
-            slug || null,
-            body.judul_jenjang_pendidikan || null,
+            slug,
+            body.judul_jenjang_pendidikan || '',
             body.ringkasan || null,
             body.isi || null,
             body.status_jenjang_pendidikan || null,
@@ -119,7 +119,7 @@ jenjangPendidikan.put('/:id', authMiddleware, adminMiddleware, async (c) => {
             id
         ).run();
 
-        return c.json({ success: true, message: 'Program berhasil diperbarui' });
+        return c.json({ success: true, message: 'Jenjang berhasil diperbarui' });
     } catch (error) {
         console.error('Update jenjang pendidikan error:', error);
         return c.json({ success: false, message: 'Terjadi kesalahan' }, 500);
